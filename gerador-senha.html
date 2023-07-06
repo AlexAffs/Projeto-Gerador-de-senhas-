@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@300;700&family=Roboto+Mono:wght@300;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" src="reset.css" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Gerador de senhas Fortes</title>
+
+</head>
+
+<body>
+    <main>
+        <section class="hero">
+            <h1 class="title">Gerador de senha</h1>
+            <p class="subtitle">
+                Utilize o nosso gerador online para criar uma senha forte e segura.
+            </p>
+        </section>
+
+        <section class="box">
+            <div class="password">
+                <div class="text">
+                    <input type="text" name="password-name" id="password-id" />
+                </div>
+                <div class="actions">
+                    <button id="copy-1"><img src="copy.svg" alt="copy2" width="35"></button>
+                    <button id="renew"><img src="renew.svg" alt="renew" width="35"></button>
+                </div>
+            </div>
+            <div class="security-indicator">
+                <div id="security-indicator-bar" class="bar success"></div>
+            </div>
+        </section>
+
+        <section class="box customize">
+            <h3 class="title">Personalizar</h3>
+            <div class="actions">
+                <div class="password-length">
+                    <p> Tamanho: <span id="password-length-text">16</span></p>
+                    <input type="range" name="password-length" id="password-length" class="slider" value="16" min="4"
+                        max="64" />
+                </div>
+                <div class="config">
+                    <label class="checkbox-container">
+                        <span class="text">Maiúsculas</span>
+                        <input type="checkbox" id="uppercase-check" checked>
+                        <span class="checkmark"></span>
+                    </label>
+                    <label class="checkbox-container">
+                        <span class="text">Números</span>
+                        <input type="checkbox" id="number-check" checked>
+                        <span class="checkmark"></span>
+                    </label>
+                    <label class="checkbox-container">
+                        <span class="text">Símbolos</span>
+                        <input type="checkbox" id="symbol-check" checked>
+                        <span class="checkmark"></span>
+                    </label>
+                </div>
+            </div>
+        </section>
+        <div class="submit">
+            <button id="copy-2">Copiar senha</button>
+        </div>
+
+
+    </main>
+    <script>
+
+        const inputEl = document.querySelector("#password-id");
+        const upperCaseCheckedEl = document.querySelector("#uppercase-check");
+        const numberCheckedEl = document.querySelector("#number-check");
+        const symbolCheckedEl = document.querySelector("#symbol-check");
+        const securityIndicatorBarEl = document.querySelector("#security-indicator-bar");
+
+        let passwordLength = 16
+
+
+        function generatePassword() {
+
+            let chars = "abcdefghijklmnopqrstuvwxyz";
+
+
+            const upperCaseChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const numberChars = "0123456789";
+            const symbolChars = "!@&*()[]{}";
+
+            if (upperCaseCheckedEl.checked) {
+                chars += upperCaseChars;
+            }
+
+            if (numberCheckedEl.checked) {
+                chars += numberChars;
+            }
+
+            if (symbolCheckedEl.checked) {
+                chars += symbolChars;
+            }
+
+            let password = "";
+
+            for (let i = 0; i < passwordLength; i++) {
+                const randomNumer = Math.floor(Math.random() * chars.length);
+                password += chars.substring(randomNumer, randomNumer + 1);
+            }
+
+            inputEl.value = password;
+
+            calculateQuality();
+            calculateFontSize();
+        }
+
+        function calculateQuality(){
+            // T * 0.25 + M* 0.15 + N*0.25 + S*0.35 = 100
+
+            const percent = Math.round((passwordLength / 64) * 25 + 
+            (upperCaseCheckedEl.checked ? 15 : 0) + 
+            (numberCheckedEl.checked ? 25 : 0) + 
+            (symbolCheckedEl.checked ? 35 : 0));
+
+            securityIndicatorBarEl.style.width = `${percent}%`;
+
+            if(percent > 69) {
+                securityIndicatorBarEl.classList.add("success");
+                securityIndicatorBarEl.classList.remove("warning");
+                securityIndicatorBarEl.classList.remove("critical");
+            }else if(percent > 50){
+                securityIndicatorBarEl.classList.add("warning");
+                securityIndicatorBarEl.classList.remove("success");
+                securityIndicatorBarEl.classList.remove("critical");
+            }else{
+                securityIndicatorBarEl.classList.add("critical");
+                securityIndicatorBarEl.classList.remove("success");
+                securityIndicatorBarEl.classList.remove("warning");
+            }
+/*          if(percent >= 100){
+                securityIndicatorBarEl.classList.add("completed");
+            }else{
+                securityIndicatorBarEl.classList.remove("completed");
+            } */
+
+        }
+
+        function calculateFontSize() {
+            if(passwordLength > 45){
+                inputEl.classList.remove("font-sm");
+                inputEl.classList.remove("font-xs");
+                inputEl.classList.add("font-xxs");
+            }else if(passwordLength > 32){
+                inputEl.classList.remove("font-sm");
+                inputEl.classList.add("font-xs");
+                inputEl.classList.remove("font-xxs");
+            }else if(passwordLength > 22){
+                inputEl.classList.add("font-sm");
+                inputEl.classList.remove("font-xs");
+                inputEl.classList.remove("font-xxs");
+            }else{
+                inputEl.classList.remove("font-sm");
+                inputEl.classList.remove("font-xs");
+                inputEl.classList.remove("font-xxs");
+            }
+        }
+
+        function copy() {
+            navigator.clipboard.writeText(inputEl.value);
+        }
+
+        const passwordLengthEl = document.querySelector("#password-length");
+        passwordLengthEl.addEventListener("input", function () {
+            passwordLength = passwordLengthEl.value;
+            document.querySelector("#password-length-text").innerText = passwordLength;
+            generatePassword();
+        });
+        upperCaseCheckedEl.addEventListener("click", generatePassword);
+        numberCheckedEl.addEventListener("click", generatePassword);
+        symbolCheckedEl.addEventListener("click", generatePassword);
+
+
+        document.querySelector("#copy-1").addEventListener("click", copy);
+        document.querySelector("#copy-2").addEventListener("click", copy);
+        document.querySelector("#renew").addEventListener("click", generatePassword);
+        
+        generatePassword();
+    </script>
+</body>
+
+</html>
